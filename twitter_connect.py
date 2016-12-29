@@ -1,3 +1,4 @@
+import tweepy
 from authentication import authentication  # Consumer and access token/key
 
 def connect_twitter():
