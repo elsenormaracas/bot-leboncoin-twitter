@@ -3,6 +3,8 @@ import tweepy, requests, os, sys
 from bdd import get_search_contents
 from twitter_connect import *
 
+api = connect_twitter()
+
 def create_tweet(link):
     """ Format the final tweet message using an array """
     search = get_search_contents(link[6])
@@ -13,9 +15,14 @@ def create_tweet(link):
              +"\nRecherche: " + str(search[2]))
     return (tweet[:140])
 
-def send_tweet(img,message):
+def send_tweet(message):
+    """ Send a tweet with just text """
+    api.update_status(message)
+
+
+def send_img_tweet(img,message):
     """ Send a tweet with an image """
-    api = connect_twitter()
+
     if img == "no-image": #If no image we send the no-picture.png
         api.update_with_media('no-picture.png', status=message)
     else: #Tweepy needs the image to be local and doesn't use the url.
