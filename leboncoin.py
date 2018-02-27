@@ -17,7 +17,7 @@ def get_all_links(id,search_url):
             save_id = b.select_one('div.saveAd').get('data-savead-id')
         except:
             save_id = '0'
-        if save_id != '0' and exists(save_id) == "yes":
+        if save_id != '0' and sale_exists(save_id) == True:
             url = "https:"+b.get('href')
             if b.select_one('span.lazyload') is None:#This span doesn't exist if no image
                 img = "no-image"
@@ -62,7 +62,7 @@ def main():
         for unpub in unpublished_sales:
             tweet = create_tweet(unpub)
             tweet_img = unpub[5]
-            send_tweet(tweet_img, tweet)
+            send_img_tweet(tweet_img, tweet)
             publish_sale(unpub[0])
             print('Envoyé tweet : '+ unpub[1])
 

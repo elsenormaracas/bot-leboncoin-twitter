@@ -11,10 +11,10 @@ def create_sale(id,title,price,date,url,img,search_id):
                 (id,title,price,date,url,img,search_id,))
     bdd.commit()
 
-def create_search(url="",name="",interval=0,last_save_id=0,owner=""):
+def create_search(url="",name="",owner=""):
     """ Adds a sale in the db """
-    cur.execute("""INSERT INTO search (url,name,interval,last_save_id,owner) VALUES (?,?,?,?,?)""",
-                (url,name,interval,last_save_id,owner))
+    cur.execute("""INSERT INTO search (url,name,owner) VALUES (?,?,?)""",
+                (url,name,owner))
     print('Nouvelle recherche active :  ' + name + " pour " + owner)
     bdd.commit()
 
@@ -48,28 +48,6 @@ def delete_search(id):
     print('Recherche ' + str(id) + ' supprimée')
     bdd.commit()
 
-def edit_search(id,url="",name="",interval=0,last_save_id=0,owner=""):
-    """ Modify a preexisting search """
-    cur.execute("""SELECT * FROM search WHERE id=?""", (id,))
-    search = cur.fetchone()
-    request = ({'url': search[1], 'name': search[2], 'interval': search[3], 'last_save_id': search[4],
-                'owner': search[5]})
-
-    if url != "":
-        request['url'] = url
-    if name != "":
-        request['name'] = name
-    if interval != 0:
-        request['interval'] = interval
-    if last_save_id != 0:
-        request['last_save_id'] = last_save_id
-    if owner != "":
-        request['owner'] = owner
-
-    cur.execute("""UPDATE search SET url=?, name=?, interval=?, last_save_id=?, owner=? WHERE id=?""",
-                (request['url'], request['name'], request['interval'], request['last_save_id'],
-                 request['owner'], id,))
-    bdd.commit()
 
 def publish_sale(id):
     """ Marks a sale as published """
@@ -83,20 +61,42 @@ def get_unpublished_sales():
     bdd.commit()
     return request
 
-def exists(id):
+def sale_exists(id):
     """ returns yes if the sale exists or no if not """
     cur.execute("""SELECT id FROM sales WHERE id=?""",(id,))
     if len(cur.fetchall()) == 0:
-        response = "yes"
+        response = True
     else:
-        response = "no"
+        response = False
+    return response
+
+def search_exists(id):
+    """ returns yes if the search exists or no if not """
+    cur.execute("""SELECT id FROM search WHERE id=?""",(id,))
+    if len(cur.fetchall()) == 0:
+        response = True
+    else:
+        response = False
+    return response
+
+def is_owner(id,owner):
+    """ returns yes if owner is the owner of the search """
+    cur.execute("""SELECT id,owner FROM search WHERE id=? and owner=?""",(id,owner,))
+    if len(cur.fetchall()) == 0:
+        response = False
+    else:
+        response = True
     return response
 
 def update_last_id(search_id,last_id):
     """ For each active search, update last_id """
     cur.execute("""UPDATE search SET last_save_id=? WHERE id=?""",(last_id, search_id,))
     bdd.commit()
-    pass
+
+def stop_search(search_id):
+    """ Stop search"""
+    cur.execute("""UPDATE search SET active=0 WHERE id=?""",(search_id,))
+    bdd.commit()
 
 def main():
     """ For local testing """
